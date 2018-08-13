@@ -58,6 +58,10 @@ class Fakturoid(object):
     def subjects(self, mapi, *args, **kwargs):
         return mapi.find(*args, **kwargs)
 
+    @model_api(Subject)
+    def subjects_search(self, mapi, *args, **kwargs):
+        return mapi.search(*args, **kwargs)
+
     @model_api(Invoice)
     def invoice(self, mapi, id):
         return mapi.load(id)
@@ -205,6 +209,14 @@ class SubjectsApi(CrudModelApi):
                 raise TypeError("'since' parameter must be date or datetime")
             params['since'] = since.isoformat()
         return super(SubjectsApi, self).find(params)
+
+    def search(self, query):
+        endpoint = 'subjects/search'
+        params = {}
+        if query:
+            params['query'] = query
+        response = self.session._get(endpoint or self.endpoint, params=params)
+        return self.unpack(response)
 
 
 class InvoicesApi(CrudModelApi):
